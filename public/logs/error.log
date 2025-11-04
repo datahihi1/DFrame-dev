@@ -332,3 +332,4 @@
 2025-10-28 16:25:51 | Error [2]: Undefined array key 4 | File: C:\laragon\www\DocTruyenHay\app\Router\web.php | Line: 91
 2025-10-28 16:29:31 | Error [2]: Undefined array key 4 | File: C:\laragon\www\DocTruyenHay\app\Router\web.php | Line: 91
 2025-10-29 22:07:26 | Error [2]: Undefined array key 4 | File: C:\laragon\www\DocTruyenHay\app\Router\web.php | Line: 88
+2025-11-04 21:50:12 | Error [2]: Undefined variable $builder | File: C:\laragon\www\AmazingFastFood\public\cache\view\compiled\captcha_2cd9c0b76d6380e067281fd80b7d7ed4ee5aeabf.bladec | Line: 7

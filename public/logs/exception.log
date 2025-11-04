@@ -161,3 +161,4 @@
 2025-11-02 23:14:49 | Exception: Duplicate route detected: GET /app  | File: C:\laragon\www\AmazingFastFood\src\Application\Router.php | Line: 171
 2025-11-02 23:14:51 | Exception: Duplicate route detected: GET /app  | File: C:\laragon\www\AmazingFastFood\src\Application\Router.php | Line: 171
 2025-11-02 23:20:29 | Exception: 405 Method Not Allowed: The requested URL /haha exists but does not support GET method.Allowed: POST | File: C:\laragon\www\AmazingFastFood\src\Application\Router.php | Line: 795
+2025-11-04 21:49:23 | Exception: Template not found: captcha | File: C:\laragon\www\AmazingFastFood\vendor\eftec\bladeone\lib\BladeOne.php | Line: 1434
