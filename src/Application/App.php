@@ -2,12 +2,14 @@
 
 namespace DFrame\Application;
 
-use \DFrame\Reports\CraftParse;
-use \DFrame\Reports\CraftError;
-use \DFrame\Reports\CraftException;
-use \DFrame\Reports\CraftRuntime;
-use \Datahihi1\TinyEnv\TinyEnv;
-use \Exception;
+use DFrame\Application\Router;
+use DFrame\Application\Session;
+use DFrame\Reports\CraftParse;
+use DFrame\Reports\CraftError;
+use DFrame\Reports\CraftException;
+use DFrame\Reports\CraftRuntime;
+use Datahihi1\TinyEnv\TinyEnv;
+use Exception;
 
 /**
  * #### App Class is the core to boot and run the application.
@@ -24,8 +26,8 @@ class App
      * Version of Craft Framework (Mini edition).
      * @var string
      */
-    public const version = '0.1.20251028-mini+dev';
-
+    public const VERSION = '0.1.20251107-mini+dev';
+    public const version = self::VERSION;
     /**
      * Application environment
      * @var string
@@ -40,7 +42,7 @@ class App
 
     /**
      * Constructor for App class to determine ROOT_DIR and INDEX_DIR
-     * 
+     *
      * @throws Exception if ROOT_DIR or INDEX_DIR are not defined
      */
     public function __construct()
@@ -118,7 +120,9 @@ class App
 
         // Content Security Policy (basic)
         if (self::isProduction()) {
-            header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
+            header(
+                "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+            );
         }
 
         // Remove server information
@@ -161,7 +165,7 @@ class App
         }
 
         if (filter_var($maintenanceMode, FILTER_VALIDATE_BOOLEAN)) {
-            if(php_sapi_name() === 'cli' || PHP_SAPI === 'cli') {
+            if (php_sapi_name() === 'cli' || PHP_SAPI === 'cli') {
                 echo "The application is currently under maintenance. Please try again later.\n";
                 exit();
             }
@@ -179,8 +183,9 @@ class App
                 );
             } else {
                 echo '<h1>Maintenance Mode</h1>';
-                if ($startStr)
+                if ($startStr) {
                     echo "<p>Start: $startStr</p>";
+                }
                 if ($endStr) {
                     echo "<p>End: $endStr</p>";
                     if ($countdown) {
@@ -274,7 +279,7 @@ class App
 
     /**
      * Validate application health
-     * 
+     *
      * @return array
      */
     private static function healthCheck(): array
@@ -315,7 +320,7 @@ class App
 
     /**
      * Load environment variables from .env file
-     * 
+     *
      * @return void
      */
     private static function loadEnvironmentVariables()
@@ -329,7 +334,7 @@ class App
 
     /**
      * Configure error reporting based on environment
-     * 
+     *
      * @return void
      */
     private static function configureErrorReporting()
@@ -349,7 +354,7 @@ class App
 
     /**
      * Configure timezone from environment variable
-     * 
+     *
      * @return void
      */
     private static function configureTimezone()
@@ -363,7 +368,7 @@ class App
 
     /**
      * Initializes the routing configuration.
-     * 
+     *
      * @return void
      * @throws Exception if the route configuration file is not found or invalid
      */
@@ -386,13 +391,12 @@ class App
      * Initializes the web environment.
      *
      * @param string|null $logDir The directory where log files will be stored.
-     * 
+     *
      * @return self
      */
     public static function initialize(?string $logDir = null)
     {
         try {
-
             // Initialize error reporting with validation
             if ($logDir) {
                 self::initializeErrorReporting($logDir);
@@ -444,7 +448,7 @@ class App
 
     /**
      * Boots the web application.
-     * 
+     *
      * @return void
      */
     public static function bootWeb($getTimeLoad = false)
@@ -458,7 +462,7 @@ class App
         // Start run route handler
         self::initializeRoute();
 
-        \DFrame\Application\Router::run();
+        Router::run();
 
         if ($getTimeLoad) {
             if (!defined('D_LOADED')) {
@@ -471,23 +475,13 @@ class App
 
     /**
      * Starts DLI application.
-     * 
+     *
      * @return void
      */
-    public static function bootDli($getTimeLoad = false)
+    public static function bootDli()
     {
-        if (headers_sent()) {
-            return;
-        }
-        echo "DFramework CLI Application\n";
-        echo "Version: " . self::version . "\n";
-        if ($getTimeLoad) {
-            if (!defined('D_LOADED')) {
-                define('D_LOADED', microtime(true) - D_RUN);
-            }
-            echo "Time load: " . (defined('D_LOADED') ? D_LOADED : 'N/A') . " seconds\n";
-        }
-        exit;
+        $app = new \DFrame\Application\Command();
+        $app->run();
     }
 }
 #endregion

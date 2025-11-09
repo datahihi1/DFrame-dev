@@ -21,7 +21,7 @@ class TwigDrive implements ViewEngine
 
     public function render(string $template, array $data = []): string
     {
-        // TODO: Triển khai thực tế với package twig
+        // Triển khai thực tế với package twig
         throw new \Exception('TwigDrive: Please install twig package and implement render()');
     }
 }

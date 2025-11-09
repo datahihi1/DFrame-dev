@@ -1,2 +1,0 @@
-2025-11-07 20:28:30 | Error [2]: http_response_code(): Cannot set response code - headers already sent (output started at C:\laragon\www\AmazingFastFood\src\Application\App.php:482) | File: C:\laragon\www\AmazingFastFood\src\Reports\CraftException.php | Line: 112
-2025-11-07 20:28:30 | Error [2]: http_response_code(): Cannot set response code - headers already sent (output started at C:\laragon\www\AmazingFastFood\src\Application\App.php:482) | File: C:\laragon\www\AmazingFastFood\src\Reports\CraftRuntime.php | Line: 69

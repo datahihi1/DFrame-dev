@@ -1,18 +1,19 @@
 <?php
+
 /**
  * TokenGenerator class
- * 
+ *
  * This class provides methods to generate and verify tokens.
  * The class supports the following token types:
  * - CSRF tokens for preventing Cross-Site Request Forgery attacks.
  * - JWT (JSON Web Tokens) for secure data transmission.
- * 
+ *
  */
 class TokenGenerator
 {
     /**
      * Generates a CSRF token and stores it in the session.
-     * 
+     *
      * @return string The generated CSRF token.
      */
     public static function csrf_generate(): string
@@ -29,7 +30,7 @@ class TokenGenerator
     }
     /**
      * Verifies a given CSRF token against the one stored in the session.
-     * 
+     *
      * @param string|null $token The CSRF token to verify.
      * @return bool True if the token is valid, false otherwise.
      */
@@ -64,7 +65,7 @@ class TokenGenerator
     }
     /**
      * Verifies a given JWT token.
-     * 
+     *
      * @param string $token The JWT token to verify.
      * @param string $secret The secret key used to sign the token.
      * @return bool True if the token is valid, false otherwise.

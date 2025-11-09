@@ -1,12 +1,15 @@
 <?php
+
 namespace DFrame\Database;
 
 use DFrame\Database\Adapter\MysqliAdapter;
 use DFrame\Database\Adapter\PdoMysqlAdapter;
 use DFrame\Database\Adapter\Sqlite3Adapter;
 use DFrame\Database\Adapter\PdoSqliteAdapter;
+
 use DFrame\Database\Mapper\MysqlMapper;
 use DFrame\Database\Mapper\SqliteMapper;
+
 use DFrame\Database\QueryBuilder\MysqlBuilder;
 use DFrame\Database\QueryBuilder\SqliteBuilder;
 
@@ -47,7 +50,7 @@ class DatabaseManager
             throw new \InvalidArgumentException("DB_DESIGN is not set.");
         }
         if (!in_array($design, self::SUPPORTED_DESIGNS, true)) {
-            throw new \InvalidArgumentException("Invalid DB_DESIGN: $design". ". Accepts: " . implode(', ', self::SUPPORTED_DESIGNS) . ".");
+            throw new \InvalidArgumentException("Invalid DB_DESIGN: $design" . ". Accepts: " . implode(', ', self::SUPPORTED_DESIGNS) . ".");
         }
 
         $config = $this->getConfig($driver);
@@ -92,7 +95,7 @@ class DatabaseManager
     {
         if (strpos($driver, 'sqlite') !== false) {
             return [
-                'database' => env('DB_SQLITE_FILE') . '.db',
+                'database' => env('DB_NAME') . '.db',
             ];
         } else if (strpos($driver, 'mysql') !== false) {
             return [
@@ -101,20 +104,6 @@ class DatabaseManager
                 'user'     => env('DB_USER'),
                 'password' => env('DB_PASS') ?? null,
                 'database' => env('DB_NAME'),
-            ];
-        } else if ($driver === 'mongodb') {
-            // Support either full URI or host/port/db
-            $uri = env('DB_MONGODB_URI');
-            if ($uri) {
-                return ['uri' => $uri, 'database' => env('DB_MONGODB_DB')];
-            }
-            return [
-                'host'     => env('DB_HOST', 'localhost'),
-                'port'     => env('DB_PORT', 27017),
-                'database' => env('DB_NAME', 'manga_reader'),
-                'user'     => env('DB_USER') ?: null,
-                'password' => env('DB_PASS') ?: null,
-                'uri'      => null,
             ];
         }
     }

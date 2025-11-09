@@ -2,6 +2,8 @@
 
 namespace DFrame\Application;
 
+use DFrame\Application\View;
+
 /**
  * #### Simple SMTP Mailer
  *
@@ -34,7 +36,7 @@ class Mail
         $this->from_name  = env('MAIL_FROMNAME') ?? "No-Reply" ?? $config['fromname'];
     }
 
-        /**
+    /**
      * Send a line to the SMTP server.
      * @param mixed $fp
      * @param string $line
@@ -247,8 +249,7 @@ class Mail
      */
     public function view(string $view, array $data = [])
     {
-        // View::render returns the rendered string, so capture and set as body.
-        $content = \DFrame\Application\View::render($view, $data);
+        $content = View::render($view, $data);
         return $this->body($content);
     }
 }

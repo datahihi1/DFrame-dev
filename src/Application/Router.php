@@ -10,6 +10,7 @@ use ReflectionMethod;
 use ReflectionFunction;
 use ReflectionParameter;
 use ReflectionNamedType;
+use DFrame\Application\Middleware;
 
 /**
  * Router – tiny, attribute-friendly, DI-aware HTTP router.
@@ -257,12 +258,16 @@ class Router
     public static function scanControllerAttributes(array $controllers): void
     {
         foreach ($controllers as $class) {
-            if (!class_exists($class)) continue;
+            if (!class_exists($class)) {
+                continue;
+            }
             $ref = new ReflectionClass($class);
             foreach ($ref->getMethods(ReflectionMethod::IS_PUBLIC) as $m) {
                 foreach ($m->getAttributes() as $attr) {
                     $attrClass = $attr->getName();
-                    if ($attrClass !== self::class && $attrClass !== \DFrame\Application\Route::class) continue;
+                    if ($attrClass !== self::class && $attrClass !== \DFrame\Application\Route::class) {
+                        continue;
+                    }
                     $args = $attr->getArguments();
 
                     $http   = strtoupper($args['method'] ?? $args['httpMethod'] ?? 'GET');
@@ -271,7 +276,9 @@ class Router
                     $isApi  = $args['isApi'] ?? $args['api'] ?? false;
                     $mw     = $args['middleware'] ?? [];
 
-                    if (!$path) continue;
+                    if (!$path) {
+                        continue;
+                    }
 
                     $handler = [$class, $m->getName()];
                     $route   = $isApi
@@ -369,8 +376,12 @@ class Router
     /* --------------------------------------------------------------------- */
     private function mergeStaticRoutes(): void
     {
-        foreach (self::$staticRoutes as $m => $r) $this->routes[$m] = array_merge($this->routes[$m] ?? [], $r);
-        foreach (self::$staticApiRoutes as $m => $r) $this->apiRoutes[$m] = array_merge($this->apiRoutes[$m] ?? [], $r);
+        foreach (self::$staticRoutes as $m => $r) {
+            $this->routes[$m] = array_merge($this->routes[$m] ?? [], $r);
+        }
+        foreach (self::$staticApiRoutes as $m => $r) {
+            $this->apiRoutes[$m] = array_merge($this->apiRoutes[$m] ?? [], $r);
+        }
     }
 
     private function cleanUri(): string
@@ -445,10 +456,12 @@ class Router
 
         foreach ($mw as $m) {
             $res = is_string($m)
-                ? \DFrame\Application\Middleware::run($m, $context)
+                ? Middleware::run($m, $context)
                 : $m($context);
 
-            if ($res === false) return;
+            if ($res === false) {
+                return;
+            }
             if ($res !== null) {
                 if ($isApi) {
                     $code = is_array($res) && isset($res['code']) ? $res['code'] : 400;
@@ -467,7 +480,9 @@ class Router
             header('Content-Type: application/json');
             $code = is_array($result) && isset($result['code']) ? $result['code'] : 200;
             http_response_code($code);
-            if (isset($result['code'])) unset($result['code']);
+            if (isset($result['code'])) {
+                unset($result['code']);
+            }
             echo json_encode($result, JSON_UNESCAPED_UNICODE);
         } else {
             echo $result;
@@ -480,9 +495,9 @@ class Router
         if (is_array($handler)) {
             [$class, $method] = $handler;
             $instance = $this->resolveClass($class);
-            $ref = new \ReflectionMethod($instance, $method);
+            $ref = new ReflectionMethod($instance, $method);
         } else {
-            $ref = new \ReflectionFunction(Closure::fromCallable($handler));
+            $ref = new ReflectionFunction(Closure::fromCallable($handler));
         }
 
         // always inject $request as the **last** argument if the callable expects it
@@ -490,7 +505,7 @@ class Router
             $args[] = $this->request;
         }
 
-        return $ref instanceof \ReflectionMethod
+        return $ref instanceof ReflectionMethod
             ? $ref->invokeArgs($instance, $args)
             : $ref->invokeArgs($args);
     }
@@ -503,7 +518,9 @@ class Router
         http_response_code($code);
 
         $result = $this->invokeHandler($handler, []);
-        if ($result !== null) echo $result;
+        if ($result !== null) {
+            echo $result;
+        }
     }
 
     /* --------------------------------------------------------------------- */
@@ -516,12 +533,14 @@ class Router
 
         $ref = new ReflectionClass($class);
         $ctor = $ref->getConstructor();
-        if (!$ctor) return $ref->newInstance();
+        if (!$ctor) {
+            return $ref->newInstance();
+        }
 
         $args = [];
         foreach ($ctor->getParameters() as $p) {
             $type = $p->getType();
-            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+            if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
                 $args[] = $this->resolveClass($type->getName());
                 continue;
             }
@@ -557,7 +576,9 @@ class Router
     /* -------------------------- URL GENERATOR -------------------------- */
     public static function route(string $name, array $params = [], ?string $base = null): ?string
     {
-        if (!isset(self::$routeNames[$name])) return null;
+        if (!isset(self::$routeNames[$name])) {
+            return null;
+        }
 
         $info = self::$routeNames[$name];
         $path = $info['path'];

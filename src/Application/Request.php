@@ -1,4 +1,5 @@
 <?php
+
 namespace DFrame\Application;
 
 /**
@@ -8,7 +9,8 @@ namespace DFrame\Application;
  * body parameters, headers, and server information.
  */
 #region Request
-class Request{
+class Request
+{
     private $requestMethod;
     private $requestUri;
     private $queryParams;
@@ -16,7 +18,8 @@ class Request{
     private $headers;
     private $server;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->server = $_SERVER;
         $this->requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
         $this->requestUri = $_SERVER['REQUEST_URI'] ?? '';
@@ -26,35 +29,43 @@ class Request{
         $this->bodyParams = (stripos($this->headers['Content-Type'] ?? '', 'application/json') !== false) ? json_decode(file_get_contents('php://input'), true) ?? [] : $_POST;
     }
 
-    public function getMethod(): string {
+    public function getMethod(): string
+    {
         return $this->requestMethod;
     }
 
-    public function getUri(): string {
+    public function getUri(): string
+    {
         return $this->requestUri;
     }
 
-    public function getQueryParams(): array {
+    public function getQueryParams(): array
+    {
         return $this->queryParams;
     }
 
-    public function getBodyParams(): array {
+    public function getBodyParams(): array
+    {
         return $this->bodyParams;
     }
 
-    public function input(string $key, $default = null) {
+    public function input(string $key, $default = null)
+    {
         return $this->bodyParams[$key] ?? $this->queryParams[$key] ?? $default;
     }
 
-    public function all(): array {
+    public function all(): array
+    {
         return array_merge($this->queryParams, $this->bodyParams);
     }
 
-    public function getHeaders(): array {
+    public function getHeaders(): array
+    {
         return $this->headers;
     }
 
-    public function getServer(): array {
+    public function getServer(): array
+    {
         return $this->server;
     }
 }

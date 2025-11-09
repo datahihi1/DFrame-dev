@@ -11,5 +11,6 @@ define('D_RUN', microtime(true));
 require_once __DIR__ . '/vendor/autoload.php';
 
 define('ROOT_DIR', __DIR__ . DIRECTORY_SEPARATOR);
+define('INDEX_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 
-App::initialize()->bootDli(true);
+App::initialize(INDEX_DIR . '/public/logs/')->bootDli();

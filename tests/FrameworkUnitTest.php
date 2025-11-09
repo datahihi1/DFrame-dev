@@ -1,9 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Core\Application\Router;
-use Core\Application\View;
-use Datahihi1\TinyEnv\TinyEnv;
+use DFrame\Application\Router;
 
 /** 
  * Unit tests for the framework functionalities.

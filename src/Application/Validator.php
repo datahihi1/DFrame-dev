@@ -1,4 +1,5 @@
 <?php
+
 namespace DFrame\Application;
 
 /**
@@ -91,6 +92,5 @@ class Validator
 
         return $errors;
     }
-
 }
 #endregion

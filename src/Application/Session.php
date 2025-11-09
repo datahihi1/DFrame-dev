@@ -1,20 +1,19 @@
 <?php
+
 namespace DFrame\Application;
 
 /**
  * #### Session management class
  *
- * This class provides methods to start, get, set, flash and destroy session variables.
- *
- * It is used to manage user sessions in the application.
+ * Handles starting sessions, getting/setting variables, flash messages,
+ * error/success messages, and destroying sessions safely.
  */
-#region Session
 class Session
 {
     /**
-     * Start the session
+     * Start the session if not already started
      */
-    public static function start()
+    public static function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -25,11 +24,13 @@ class Session
      * Get a session variable
      *
      * @param string $key
+     * @param mixed $default
      * @return mixed
      */
-    public static function get($key)
+    public static function get(string $key, $default = null)
     {
-        return $_SESSION[$key] ?? null;
+        self::start();
+        return $_SESSION[$key] ?? $default;
     }
 
     /**
@@ -38,32 +39,32 @@ class Session
      * @param string $key
      * @param mixed $value
      */
-    public static function set($key, $value)
+    public static function set(string $key, $value): void
     {
-        if (!session($key)) {
-            $_SESSION[$key] = $value;
-        }
+        self::start();
+        $_SESSION[$key] = $value;
     }
 
     /**
-     * Flash a session variable
+     * Flash a session variable (one-time)
      *
-     * @param string $key The session flash key.
-     * @param mixed $value The session flash value.
+     * @param string $key
+     * @param mixed $value
      */
-    public static function flash(string $key, $value)
+    public static function flash(string $key, $value): void
     {
         self::start();
         $_SESSION['_flash'][$key] = $value;
     }
 
     /**
-     * Get and remove a flash session variable
+     * Get a flash variable and remove it
      *
-     * @param string $key The session flash key.
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
-    public static function getFlash(string $key)
+    public static function getFlash(string $key, $default = null)
     {
         self::start();
         if (isset($_SESSION['_flash'][$key])) {
@@ -71,42 +72,76 @@ class Session
             unset($_SESSION['_flash'][$key]);
             return $value;
         }
-        return null;
+        return $default;
     }
 
     /**
-     * Set an error message in the session
+     * Set an error message
      *
-     * @param string $message The error message.
-     * @return $this
+     * @param string $message
      */
-    public function withError(string $message)
+    public static function withError(string $message): void
     {
         self::start();
         $_SESSION['_error'] = $message;
-        return $this;
     }
 
     /**
-     * Set a success message in the session
+     * Set a success message
      *
-     * @param string $message The success message.
-     * @return $this
+     * @param string $message
      */
-    public function withSuccess(string $message)
+    public static function withSuccess(string $message): void
     {
         self::start();
         $_SESSION['_success'] = $message;
-        return $this;
     }
 
     /**
-     * Destroy the session
+     * Get the error message (optional)
+     *
+     * @return string|null
      */
-    public static function destroy()
+    public static function getError(): ?string
     {
-        session_unset();
+        return self::get('_error');
+    }
+
+    /**
+     * Get the success message (optional)
+     *
+     * @return string|null
+     */
+    public static function getSuccess(): ?string
+    {
+        return self::get('_success');
+    }
+
+    /**
+     * Destroy the session safely
+     */
+    public static function destroy(): void
+    {
+        self::start();
+
+        // Clear session data
+        $_SESSION = [];
+
+        // Remove session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+
+        // Destroy session
         session_destroy();
     }
 }
-#endregion

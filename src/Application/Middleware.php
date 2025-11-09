@@ -1,9 +1,10 @@
 <?php
+
 namespace DFrame\Application;
 
 /**
  * #### Class Middleware is for handling middleware functionality
- * 
+ *
  * This class handles middleware functionality for the application.
  * It provides a simple way to add middleware to routes and groups.
  */

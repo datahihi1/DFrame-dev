@@ -8,17 +8,9 @@ UserAuthencation::registerSelf();
 $router = new DFrame\Application\Router();
 
 $router->get('/', function () {
-return View::render('app');
+    return "Trang chủ";
 })->name('home');
-
-$router->get('/app', function () {
-return View::render('app');
-})->name('app');
 
 $router->default(function () {
     return get404pages() ?? '404 Not Found';
 });
-
-$router->scanControllerAttributes([
-    \App\Controller\DemoController::class
-]);

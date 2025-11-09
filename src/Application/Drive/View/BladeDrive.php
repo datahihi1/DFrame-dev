@@ -17,7 +17,7 @@ class BladeDrive implements ViewEngine
 
     public function render(string $template, array $data = []): string
     {
-        // TODO: Triển khai thực tế với package blade
+        // Triển khai thực tế với package blade
         throw new \Exception('BladeDrive: Please install blade package and implement render()');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use DFrame\Application\Router;
+use DFrame\Application\View;
 use DFrame\Application\Session;
 
 if (!function_exists('old')) {
@@ -23,7 +25,7 @@ if (!function_exists('old')) {
 
 if (!function_exists('source')) {
     /**
-     * Get the URL for a source file (located in public/source).
+     * Get the URL for a source file (located in public_html/source).
      *
      * @param string $path
      * @return string
@@ -97,7 +99,7 @@ if (!function_exists('route')) {
      */
     function route(string $name, array $params = []): ?string
     {
-        return \DFrame\Application\Router::route($name, $params);
+        return Router::route($name, $params);
     }
 }
 
@@ -180,7 +182,7 @@ if (!function_exists('csrf_field')) {
      */
     function csrf_field(): string
     {
-        $token = \TokenGenerator::csrf_generate();
+        $token = TokenGenerator::csrf_generate();
         return '<input type="hidden" name="_csrf" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
     }
 }
@@ -195,6 +197,6 @@ if (!function_exists('view')) {
      */
     function view(string $view, array $data = []): string
     {
-        return \DFrame\Application\View::render($view, $data);
+        return View::render($view, $data);
     }
 }

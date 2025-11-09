@@ -57,6 +57,7 @@ class DB extends DatabaseManager
             $this->mapper = $this->getMapper($this->table);
         }
     }
+
     /**
      * Set the table for the query.
      * @param string $table

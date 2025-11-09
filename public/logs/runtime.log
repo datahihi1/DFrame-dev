@@ -1,1 +1,0 @@
-2025-11-05 20:00:37 | Runtime Error [2]: define(): Argument #3 ($case_insensitive) is ignored since declaration of case-insensitive constants is no longer supported | File: C:\laragon\www\AmazingFastFood\public\index.php | Line: 11
