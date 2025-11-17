@@ -21,3 +21,8 @@
 [2025-11-12 21:32:43] ERROR | C:\laragon\www\DFrame\src\Database\Adapter\Sqlite3Adapter.php:35 | SQLite3::query(): Unable to prepare statement: no such table: users | {"code":2}
 [2025-11-12 22:16:18] ERROR | C:\laragon\www\DFrame\src\Database\Adapter\Sqlite3Adapter.php:35 | SQLite3::query(): Unable to prepare statement: no such table: users | {"code":2}
 [2025-11-12 23:04:32] ERROR | C:\laragon\www\DFrame\src\Database\Adapter\Sqlite3Adapter.php:35 | SQLite3::query(): Unable to prepare statement: no such table: users | {"code":2}
+[2025-11-13 13:52:43] ERROR | C:\laragon\www\DFrame\src\Database\Adapter\Sqlite3Adapter.php:35 | SQLite3::query(): Unable to prepare statement: no such table: users | {"code":2}
+[2025-11-13 19:02:03] ERROR | C:\laragon\www\DFrame\src\Database\Adapter\Sqlite3Adapter.php:35 | SQLite3::query(): Unable to prepare statement: no such table: users | {"code":2}
+[2025-11-15 18:56:11] ERROR | C:\laragon\www\DFrame\vendor\datahihi1\raknet\src\RakNetClient.php:48 | socket_sendto(): Host lookup failed [11001]: No such host is known | {"code":2}
+[2025-11-15 19:03:17] ERROR | C:\laragon\www\DFrame\vendor\datahihi1\raknet\src\RakNetClient.php:48 | socket_sendto(): Unable to write to socket [10049]: The requested address is not valid in its context | {"code":2}
+[2025-11-15 19:12:02] ERROR | C:\laragon\www\DFrame\vendor\datahihi1\raknet\src\RakNetClient.php:48 | socket_sendto(): Host lookup failed [11001]: No such host is known | {"code":2}

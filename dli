@@ -5,6 +5,9 @@ require __DIR__ . '/vendor/autoload.php';
 use DFrame\Command\Console;
 use App\Console\VersionCommand;
 
+use DFrame\Reports\Report;
+Report::setup(true,  __DIR__ . '/public/logs/html.log', Report::cli());
+
 // Khởi tạo console
 $console = new Console();
 

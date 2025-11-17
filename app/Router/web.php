@@ -3,6 +3,7 @@
 use App\Controller\UserController;
 
 use App\Middleware\UserAuthencation;
+use DFrame\Application\View;
 
 UserAuthencation::sign();
 
@@ -11,6 +12,10 @@ $router = new DFrame\Application\Router();
 $router->sign('GET /', function () {
     return "Hello, World!";
 })->name('home');
+
+$router->sign('GET /minesv', function () {
+    return View::render('minesv');
+})->name('minesv');
 
 $router->sign('GET /user/list', [UserController::class, 'listUsers'])->name('user.list');
 
