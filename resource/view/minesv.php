@@ -1,5 +1,5 @@
 <?php
-$host = "192.168.137.1";
+$host = "play.cubecraft.net";
 $port = 19132;
 
 use Datahihi1\RakNet\RakNetClient;
