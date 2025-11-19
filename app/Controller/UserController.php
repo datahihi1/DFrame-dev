@@ -16,7 +16,8 @@ class UserController extends Controller
     }
     public function listUsers()
     {
-        $allUsers = $this->users->fetchAll();
+        $allUsers = $this->users
+                         ->fetchAll();
         return $this->render('user1/list', ['users' => $allUsers]);
     }
 
@@ -53,10 +54,12 @@ class UserController extends Controller
             return $this->render('user1/add', ['error' => $validator->errors()]);
         }
 
-        $this->users->insert([
-            'name' => $name,
-            'email' => $email
-        ])->execute();
+        $this->users
+             ->insert([
+             'name' => $name,
+             'email' => $email
+             ])
+             ->execute();
         header('Location: ' . route('user.list'));
         exit;
     }
@@ -99,13 +102,16 @@ class UserController extends Controller
             ->update([
                 'name' => $name,
                 'email' => $email
-            ])->execute();
+            ])
+            ->execute();
         header('Location: ' . route('user.list'));
         exit;
     }
     public function deleteUser($id)
     {
-        $this->users->delete($id);
+        $this->users
+             ->delete($id)
+             ->execute();
         header('Location: ' . route('user.list'));
         exit;
     }

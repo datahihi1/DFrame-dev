@@ -6,7 +6,7 @@ use DFrame\Command\Console;
 use App\Console\VersionCommand;
 
 use DFrame\Reports\Report;
-Report::setup(true,  __DIR__ . '/public/logs/html.log', Report::cli());
+Report::setup(true,  __DIR__ . '/public/logs/cli.log', Report::cli());
 
 // Khởi tạo console
 $console = new Console();

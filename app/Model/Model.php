@@ -16,7 +16,7 @@ use DFrame\Database\DatabaseManager;
  * @method \Craft\Database\Interfaces\BuilderInterface insert(array $data)
  * @method \Craft\Database\Interfaces\BuilderInterface update(array $data)
  * @method \Craft\Database\Interfaces\BuilderInterface delete()
- * @method mixed execute()
+ * @method \Craft\Database\Interfaces\BuilderInterface execute()
  * @method array fetchAll()
  * @method mixed fetch(string $type = 'assoc')
  * @method mixed first(string $type = 'assoc')
