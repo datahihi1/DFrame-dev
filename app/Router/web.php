@@ -17,14 +17,6 @@ $router->sign('GET /minesv', function () {
     return View::render('minesv');
 })->name('minesv');
 
-$router->sign('GET /demo1', function () {
-    return View::render('demo1');
-})->name('demo1');
-$router->sign('GET /demo1/1/', function () {
-    return View::render('demo1_2');
-})->name('demo1_2');
-
-
 $router->sign('GET /user/list', [UserController::class, 'listUsers'])->name('user.list');
 
 $router->sign('GET /user/store', [UserController::class, 'addUser'])->name('user.add');
