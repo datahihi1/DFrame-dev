@@ -80,4 +80,4 @@ require_once $autoloadFile;
 use DFrame\Reports\Report;
 Report::setup(true, INDEX_DIR . '/logs/html.log', Report::html());
 
-\DFrame\Application\App::initialize(INDEX_DIR . '/logs/')->bootWeb();
+\DFrame\Application\App::initialize()->bootWeb();

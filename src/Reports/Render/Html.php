@@ -17,13 +17,18 @@ class Html implements RenderInterface
 
     public function render(string $type, string $message, string $file, int $line, array $context = []): void
     {
-        $config = self::$configs[$type] ?? self::$configs['error'];
-        $includedFiles = get_included_files();
-        $version = PHP_VERSION;
+        /** Check DFrame version */
+        $dfver = class_exists(\DFrame\Application\App::class)
+            ? \DFrame\Application\App::version
+            : 'Non-DFrame Environment';
 
-        http_response_code(500);
+        $config = self::$configs[$type] ?? self::$configs['error'];
+
         while (ob_get_level())
             ob_end_clean();
+
+        // set HTTP 500 when rendering an error/exception report
+        http_response_code(500);
 
         // build a small SVG favicon whose fill color is the same as the error color
         $favColor = $config['color'] ?? '#7c3aed';
@@ -78,9 +83,7 @@ class Html implements RenderInterface
                 }
 
                 .header {
-                    background:
-                        <?= $config['gradient'] ?>
-                    ;
+                    background: <?= $config['gradient'] ?>;
                     color: white;
                     padding: 15px 20px;
                     font-weight: 500;
@@ -172,15 +175,17 @@ class Html implements RenderInterface
                 }
 
                 .highlight-line {
-                    background:
-                        <?= $config['color'] ?>
-                        20 !important;
-                    color:
-                        <?= $config['color'] ?>
-                    ;
-                    font-weight: bold;
-                    border-left: 4px solid
-                        <?= $config['color'] ?>
+                    background-color: <?= $config['color'] ?>20 !important; /* 20 = ~12% opacity */
+                    color: <?= $config['color'] ?>;
+                    font-weight: 600;
+                    border-left: 4px solid <?= $config['color'] ?>;
+                    padding-left: 12px;
+                }
+
+                /* dim non-highlighted lines slightly to make the highlighted line stand out */
+                .code-viewer .code-line:not(.highlight-line) .line-content,
+                .code-viewer .code-line:not(.highlight-line) .line-number {
+                    opacity: 0.6;
                 }
 
                 .php-keyword {
@@ -232,6 +237,7 @@ class Html implements RenderInterface
                     <div class="title">
                         <h2><?= ucfirst($type) ?></h2>
                         <div class="message"><?= nl2br(htmlspecialchars($message)) ?></div>
+                        <div>DFrame: <?= htmlspecialchars($dfver) ?> | PHP: <?= htmlspecialchars(PHP_VERSION) ?></div>
                     </div>
                     <?php if ($file && file_exists($file)): ?>
                         <div class="code-container">

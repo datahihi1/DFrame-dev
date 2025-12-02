@@ -50,6 +50,10 @@ class Handler extends HandlerInterface
         $this->renderer->render('exception', $exception->getMessage(), $exception->getFile(), $exception->getLine());
     }
 
+    /**
+     * Handle parse errors on shutdown
+     * @return void 
+     */
     public function handleParse(): void
     {
         // Handled via shutdown

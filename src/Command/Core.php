@@ -2,10 +2,8 @@
 
 namespace DFrame\Command;
 
-class Core {
-    const VERSION = '1.0.0';
+use DFrame\Application\Command;
 
-    public static function getVersion() {
-        return self::VERSION;
-    }
+class Core extends Command
+{
 }

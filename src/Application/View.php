@@ -3,9 +3,6 @@
 namespace DFrame\Application;
 
 use Exception;
-/*
- * Cập nhật 2025-13-11
-*/
 
 /**
  * #### Class View to render views with data
@@ -16,7 +13,6 @@ use Exception;
  * - Default view engine is basic PHP. To use other view engines, set `SUPPORT_VIEW_ENGINE` to `enable` in the `.env` file and configure the view engine in `config/view.php`.
  * - Default view path is `ROOT_DIR/resource/view/`. You can customize it via constructor or config file.
  */
-#region View
 class View
 {
     /**
@@ -67,6 +63,8 @@ class View
     public static function render($view, $data = [], $viewPath = null)
     {
         $instance = new self($viewPath);
+        // Default HTML title
+        $data['title'] ??= '<title>Default Title</title>';
         return $instance->view($view, $data);
     }
 
@@ -146,4 +144,3 @@ class View
         return $instance->view($view, $data);
     }
 }
-#endregion

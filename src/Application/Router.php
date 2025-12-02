@@ -8,7 +8,6 @@ use Exception;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionFunction;
-use ReflectionParameter;
 use ReflectionNamedType;
 use DFrame\Application\Middleware;
 
@@ -64,15 +63,15 @@ class Router
     /** Group stack */
     private static array $groupStack = [];
     private static array $groupContext = [
-        'prefix'      => '',
-        'middleware'  => [],
-        'namePrefix'  => '',
+        'prefix' => '',
+        'middleware' => [],
+        'namePrefix' => '',
     ];
 
     /* --------------------------------------------------------------------- */
     public function __construct($request = null, array $container = [])
     {
-        $this->request   = $request;
+        $this->request = $request;
         $this->container = $container;
     }
 
@@ -95,7 +94,7 @@ class Router
         }
 
         $methods = array_filter(array_map('trim', explode('|', $m[1])), fn($m) => $m !== '');
-        $path    = $m[2];
+        $path = $m[2];
 
         foreach ($methods as $method) {
             if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'])) {
@@ -105,14 +104,14 @@ class Router
 
         return [
             'methods' => $methods,
-            'path'    => $path,
+            'path' => $path,
         ];
     }
 
     private static function registerStaticRoute(string $spec, mixed $handler, array $middleware = []): void
     {
         $parsed = self::parseRouteSpec($spec);
-        $path   = $parsed['path'];
+        $path = $parsed['path'];
 
         $fullPath = self::$groupContext['prefix']
             ? self::buildGroupPath($path)
@@ -131,15 +130,15 @@ class Router
         // Lưu lại route cuối cùng để hỗ trợ ->name()
         self::$lastRegisteredRoute = [
             'method' => $parsed['methods'][0], // chỉ lưu method đầu tiên cho tên
-            'path'   => $fullPath,
-            'api'    => false
+            'path' => $fullPath,
+            'api' => false
         ];
     }
 
     private static function registerStaticApiRoute(string $spec, mixed $handler, array $middleware = []): void
     {
         $parsed = self::parseRouteSpec($spec);
-        $path   = self::normalizeApiPath($parsed['path']);
+        $path = self::normalizeApiPath($parsed['path']);
 
         foreach ($parsed['methods'] as $method) {
             $store = &self::$staticApiRoutes[$method];
@@ -151,8 +150,8 @@ class Router
 
         self::$lastRegisteredRoute = [
             'method' => $parsed['methods'][0],
-            'path'   => $path,
-            'api'    => true
+            'path' => $path,
+            'api' => true
         ];
     }
 
@@ -256,8 +255,8 @@ class Router
         $info = self::$lastRegisteredRoute;
         self::$routeNames[$full] = [
             'method' => $info['method'],
-            'path'   => $info['path'],
-            'api'    => $info['api'] ?? false,
+            'path' => $info['path'],
+            'api' => $info['api'] ?? false,
         ];
         return new self();
     }
@@ -269,7 +268,12 @@ class Router
      */
     public static function action(callable $cb): self
     {
-        $cb();
+        $ref = new ReflectionFunction(Closure::fromCallable($cb));
+        if ($ref->getNumberOfParameters() > 0) {
+            $cb(new self());
+        } else {
+            $cb();
+        }
         self::$groupContext = array_pop(self::$groupStack) ?? [
             'prefix' => '',
             'middleware' => [],
@@ -299,7 +303,8 @@ class Router
     public static function scanControllerAttributes(array $controllers): void
     {
         foreach ($controllers as $class) {
-            if (!class_exists($class)) continue;
+            if (!class_exists($class))
+                continue;
             $ref = new ReflectionClass($class);
             foreach ($ref->getMethods(ReflectionMethod::IS_PUBLIC) as $m) {
                 foreach ($m->getAttributes() as $attr) {
@@ -309,13 +314,14 @@ class Router
                     }
                     $args = $attr->getArguments();
 
-                    $http   = strtoupper($args['method'] ?? $args['httpMethod'] ?? 'GET');
-                    $path   = $args['router'] ?? $args['path'] ?? $args[0] ?? null;
-                    $name   = $args['name'] ?? null;
-                    $isApi  = $args['isApi'] ?? $args['api'] ?? false;
-                    $mw     = $args['middleware'] ?? [];
+                    $http = strtoupper($args['method'] ?? $args['httpMethod'] ?? 'GET');
+                    $path = $args['router'] ?? $args['path'] ?? $args[0] ?? null;
+                    $name = $args['name'] ?? null;
+                    $isApi = $args['isApi'] ?? $args['api'] ?? false;
+                    $mw = $args['middleware'] ?? [];
 
-                    if (!$path) continue;
+                    if (!$path)
+                        continue;
 
                     // Hỗ trợ multi-method trong attribute: method: 'GET|POST'
                     $spec = "$http $path";
@@ -347,11 +353,11 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         // support X-HTTP-Method-Override or HTTP_X_HTTP_METHOD_OVERRIDE
         $overrideHeader = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? $_SERVER['HTTP_X_HTTP_METHOD'] ?? null;
-        $overrideField  = $_POST['_method'] ?? $_REQUEST['_method'] ?? null;
+        $overrideField = $_POST['_method'] ?? $_REQUEST['_method'] ?? null;
         if ($method === 'POST' && ($overrideHeader || $overrideField)) {
             $method = strtoupper($overrideHeader ?: $overrideField);
         }
-        $uri    = $this->cleanUri();
+        $uri = $this->cleanUri();
 
         // 1. exact match (standard)
         if (isset($this->routes[$method][$uri])) {
@@ -477,9 +483,9 @@ class Router
 
     private function dispatch(array $route, array $params, bool $isApi): void
     {
-        $handler   = $this->normalizeHandler($route['handler']);
-        $mwGlobal  = $isApi ? $this->globalApiMiddleware : $this->globalMiddleware;
-        $mw        = array_merge($mwGlobal, $route['middleware']);
+        $handler = $this->normalizeHandler($route['handler']);
+        $mwGlobal = $isApi ? $this->globalApiMiddleware : $this->globalMiddleware;
+        $mw = array_merge($mwGlobal, $route['middleware']);
 
         $context = ['params' => $params, 'request' => $this->request];
 
@@ -488,7 +494,8 @@ class Router
                 ? Middleware::run($m, $context)
                 : $m($context);
 
-            if ($res === false) return;
+            if ($res === false)
+                return;
             if ($res !== null) {
                 if ($isApi) {
                     $code = is_array($res) && isset($res['code']) ? $res['code'] : 400;
@@ -507,7 +514,8 @@ class Router
             header('Content-Type: application/json');
             $code = is_array($result) && isset($result['code']) ? $result['code'] : 200;
             http_response_code($code);
-            if (isset($result['code'])) unset($result['code']);
+            if (isset($result['code']))
+                unset($result['code']);
             echo json_encode($result, JSON_UNESCAPED_UNICODE);
         } else {
             echo $result;
@@ -587,7 +595,7 @@ class Router
     {
         $def = self::$defaultHandler;
         $handler = $def['handler'];
-        $code    = $def['code'] ?? 404;
+        $code = $def['code'] ?? 404;
         http_response_code($code);
 
         $result = $this->invokeHandler($handler, []);
@@ -663,8 +671,8 @@ class Router
         }
 
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $base   ??= $scheme . '://' . $host . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base ??= $scheme . '://' . $host . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
 
         $url = rtrim($base, '/') . '/' . ltrim($path, '/');
         return preg_replace('#(?<!:)//+#', '/', $url);

@@ -137,12 +137,19 @@ if (!function_exists('getBaseUrl')) {
      */
     function getBaseUrl(): string
     {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-        $host = $_SERVER['HTTP_HOST'];
-        $scriptName = $_SERVER['SCRIPT_NAME'];
-        $basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/') . '/';
-        return $scheme . "://" . $host . $basePath;
+        $scheme =
+            ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null)
+            ?: ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http");
+
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST']
+            ?? ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/';
+        $basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+
+        return $scheme . '://' . $host . ($basePath === '' ? '/' : $basePath . '/');
     }
+
 }
 
 if (!function_exists('csrf_field')) {

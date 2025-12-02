@@ -15,14 +15,16 @@ use Exception;
  * and runtime issues. It also handles reporting if the application is run
  * from the command line.
  */
-#region App
 class App
 {
     /**
-     * Version of Craft Framework (Mini edition).
+     * Version of DFrame Framework (Mini edition).
      * @var string
      */
     public const VERSION = '0.1.20251107-mini+dev';
+    /**
+     * Alias for version constant
+     */
     public const version = self::VERSION;
     /**
      * Application environment
@@ -348,7 +350,7 @@ class App
     }
 
     /**
-     * Initializes the web environment.
+     * Initializes the environment.
      *
      * @param string|null $logDir The directory where log files will be stored.
      *
@@ -393,7 +395,7 @@ class App
     {
         // Start session
         Session::start();
-        
+
         // Set maintenance mode if enabled
         self::setMaintenanceMode();
 
@@ -418,4 +420,3 @@ class App
         $app->run();
     }
 }
-#endregion

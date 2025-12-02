@@ -9,10 +9,10 @@ use DFrame\Reports\Interface\RenderInterface;
 class Cli implements RenderInterface
 {
     private static $colors = [
-        'error' => "\033[35m",      // magenta
-        'exception' => "\033[31m",  // red
-        'parse' => "\033[34m",      // blue
-        'runtime' => "\033[33m",    // yellow
+        'error' => "\033[35m",
+        'exception' => "\033[31m",
+        'parse' => "\033[34m",
+        'runtime' => "\033[33m",
         'reset' => "\033[0m",
         'bold' => "\033[1m",
     ];

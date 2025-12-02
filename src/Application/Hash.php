@@ -2,7 +2,6 @@
 
 namespace DFrame\Application;
 
-use Throwable;
 use RuntimeException;
 
 /**
@@ -10,7 +9,6 @@ use RuntimeException;
  *
  * A simple utility class for hashing and verifying strings using default, bcrypt.
  */
-#region Hash
 class Hash
 {
     /**
@@ -78,4 +76,3 @@ class Hash
         return (bool)$verified;
     }
 }
-#endregion

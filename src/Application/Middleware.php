@@ -8,7 +8,6 @@ namespace DFrame\Application;
  * This class handles middleware functionality for the application.
  * It provides a simple way to add middleware to routes and groups.
  */
-#region Middleware
 class Middleware
 {
     /**
@@ -62,4 +61,3 @@ class Middleware
         return null;
     }
 }
-#endregion

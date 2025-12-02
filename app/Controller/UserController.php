@@ -51,7 +51,7 @@ class UserController extends Controller
         );
 
         if ($validator->fails()) {
-            return $this->render('user1/add', ['error' => $validator->errors()]);
+            return $this->render('user1/add', ['error' => $validator->first()]);
         }
 
         $this->users
