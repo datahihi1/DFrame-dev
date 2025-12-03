@@ -3,6 +3,11 @@ namespace DFrame\Database\Adapter;
 
 use DFrame\Database\Interfaces\AdapterInterface;
 
+use function \is_float;
+use function \is_int;
+use function \is_null;
+use function \is_string;
+
 /**
  * #### SQLite3 Database Adapter using SQLite3 extension
  * **Require**: the `sqlite3` PHP extension.
@@ -58,7 +63,7 @@ class Sqlite3Adapter implements AdapterInterface
 			return \SQLITE3_INTEGER;
 		} elseif (is_float($value)) {
 			return \SQLITE3_FLOAT;
-		} elseif (is_null($value)) {
+		} elseif ($value === null) {
 			return \SQLITE3_NULL;
 		} elseif (is_string($value)) {
 			return \SQLITE3_TEXT;
@@ -93,7 +98,7 @@ class Sqlite3Adapter implements AdapterInterface
 
 	public function getError()
 	{
-		return $this->conn ? $this->conn->lastErrorMsg() : null;
+		return $this->conn?->lastErrorMsg();
 	}
 	public function lastInsertId()
 	{

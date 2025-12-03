@@ -21,7 +21,7 @@ class App
      * Version of DFrame Framework (Mini edition).
      * @var string
      */
-    public const VERSION = '0.1.20251107-mini+dev';
+    public const VERSION = '0.1.20251203-mini+dev';
     /**
      * Alias for version constant
      */

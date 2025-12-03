@@ -2,6 +2,11 @@
 
 namespace DFrame\Application\Drive\Cache;
 
+/**
+ * #### DFrame Redis Cache Driver
+ *
+ * A Redis-based cache driver for DFrame Framework.
+ */
 class Redis
 {
     private ?\Redis $client = null;
@@ -15,6 +20,12 @@ class Redis
     private int $defaultTTL;
     private bool $compression;
 
+    /**
+     * DFrame Redis Cache Driver
+     *
+     * Constructor for Redis cache driver. Configuration can be provided via environment variables or an optional config array.
+     * @param array $config Optional configuration array with keys: host, port, timeout, auth, prefix, debug, ttl, compression.
+     */
     public function __construct(array $config = [])
     {
         $this->host = env('REDIS_HOST') ?? $config['host'] ?? '127.0.0.1';
@@ -173,5 +184,22 @@ class Redis
     {
         $this->connect();
         return $this->client;
+    }
+
+    /**
+     * Increment a numeric value
+     */
+    public function increment(string $key, int $by = 1): int
+    {
+        $this->connect();
+        return $this->client->incrBy($this->key($key), $by);
+    }
+
+    /**
+     * Check if a key exists (alias for exists)
+     */
+    public function has(string $key): bool
+    {
+        return $this->exists($key);
     }
 }

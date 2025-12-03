@@ -3,6 +3,9 @@ namespace DFrame\Database\QueryBuilder;
 
 use DFrame\Database\Interfaces\BuilderInterface;
 
+use function \is_array;
+use function \count;
+
 abstract class BaseBuilder implements BuilderInterface {
     protected $adapter;
     protected $table;

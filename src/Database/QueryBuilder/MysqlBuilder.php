@@ -1,7 +1,13 @@
 <?php
+
 namespace DFrame\Database\QueryBuilder;
 
-class MysqlBuilder extends BaseBuilder {
+use DFrame\Database\Interfaces\BuilderInterface;
+
+use function \array_keys;
+use function \is_object;
+
+class MysqlBuilder extends BaseBuilder implements BuilderInterface {
     public function toSql(): string {
         $op = $this->operation ?: 'select';
         if ($op === 'select') {

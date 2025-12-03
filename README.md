@@ -24,7 +24,11 @@
 **Routing:**
 ```php
 $router = new DFrame\Application\Router();
-$router->get('/', [App\Controller\HomeController::class, 'index']);
+$router->sign('GET /', [App\Controller\HomeController::class, 'index']); // Single route
+$router->group('/api')->action(function($router) { // Grouped routes
+    $router->sign('GET /users', [App\Controller\Api\UserController::class, 'list']);
+});
+$router->sign('GET|POST /demo', [App\Controller\DemoController::class, 'index']); // Multiple methods
 $router->runInstance();
 ```
 
@@ -42,6 +46,8 @@ class HomeController extends Controller {
 ```php
 $test = new User();
 $allUsers = $test->all(); // Get all users with Mapper
+
+DB::table('users')->where('id', 1)->first(); // Query Builder
 ```
 
 **View:**
@@ -53,4 +59,19 @@ echo DFrame\Application\View::render('home', ['message' => 'Hello!']);
 ```php
 DFrame\Application\Session::flash('msg', 'Success!'); // Set flash message
 echo DFrame\Application\Session::getFlash('msg'); // Get and clear flash message
+```
+
+**Hash:**
+
+```php
+$hashedPassword = DFrame\Application\Hash::default('password123'); // Hash password
+$isValid = DFrame\Application\Hash::verify('password123', $hashedPassword); // Verify password
+```
+
+**Mail:**
+```php
+DFrame\Application\Mail::to('recipient@example.com')
+    ->subject('Test Email')
+    ->body('This is a test email.')
+    ->send();
 ```

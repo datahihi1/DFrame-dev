@@ -29,12 +29,11 @@ trait Authenticatable
 
     /**
      * Check if the object is authenticated.
-     *
      * @return bool
      */
     public function isAuthenticated()
     {
-        return !is_null($this->authenticated_at);
+        return $this->authenticated_at !== null;
     }
 
     /**

@@ -13,6 +13,8 @@ use DFrame\Database\Mapper\SqliteMapper;
 use DFrame\Database\QueryBuilder\MysqlBuilder;
 use DFrame\Database\QueryBuilder\SqliteBuilder;
 
+use function \in_array;
+
 /**
  * #### DatabaseManager class
  * 

@@ -3,6 +3,9 @@ namespace DFrame\Database\Adapter;
 
 use DFrame\Database\Interfaces\AdapterInterface;
 
+use function \is_float;
+use function \is_int;
+
 /**
  * #### MySQLi Database Adapter using MySQLi extension
  * **Require**: the `mysqli` PHP extension.
@@ -57,7 +60,7 @@ class MysqliAdapter implements AdapterInterface
 				$types .= 'i';
 			} else if (is_float($param)) {
 				$types .= 'd';
-			} else if (is_null($param)) {
+			} else if ($param === null) {
 				$types .= 's';
 				$param = null;
 			} else {
@@ -122,6 +125,6 @@ class MysqliAdapter implements AdapterInterface
 
 	public function getError()
 	{
-		return $this->conn ? $this->conn->error : null;
+		return $this->conn?->error;
 	}
 }

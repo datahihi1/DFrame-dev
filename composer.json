@@ -1,14 +1,13 @@
 {
-    "name": "datahihi1/dframe-mini",
-    "description": "This is a mini framework created by Datahihi1.",
+    "name": "datahihi1/dframe",
+    "description": "This is a framework created by Datahihi1.",
     "type": "project",
     "license": "MIT",
     "require": {
         "php": ">=8.0",
         "eftec/bladeone": "^4.19",
-        "gregwar/captcha": "^1.3",
-        "datahihi1/tiny-env": "^1.0",
-        "datahihi1/raknet": "dev-main"
+        "twig/twig": "*",
+        "datahihi1/tiny-env": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -35,9 +34,5 @@
         "post-create-project-cmd": [
             "@CopyEnv"
         ]
-    },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "^4.0",
-        "phpunit/phpunit": "^12.4"
     }
 }

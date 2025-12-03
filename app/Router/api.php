@@ -15,11 +15,11 @@ $router->signApi('GET /demo/mail', function () {
     return 'Email sent successfully!';
 })->name('api.demo.mail');
 
-// Demo Memcached
+// Demo Redis Cache
 $router->signApi('GET /demo/cache', function () {
-        $cache = new \DFrame\Application\Drive\Cache\Memcached([
+        $cache = new \DFrame\Application\Drive\Cache\Redis([
             'host'        => '127.0.0.1',
-            'port'        => 11211,
+            'port'        => 6379,
             'prefix'      => 'dframe:',
             'default_ttl' => 60,
         ]);

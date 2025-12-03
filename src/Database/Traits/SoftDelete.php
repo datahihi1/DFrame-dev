@@ -43,6 +43,6 @@ trait SoftDelete
      */
     public function isDeleted()
     {
-        return !is_null($this->deleted_at);
+        return $this->deleted_at !== null;
     }
 }

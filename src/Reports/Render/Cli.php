@@ -19,10 +19,19 @@ class Cli implements RenderInterface
 
     public function render(string $type, string $message, string $file, int $line, array $context = []): void
     {
+        $dfversion = class_exists(\DFrame\Application\App::class)
+        ? \DFrame\Application\App::VERSION
+        : 'Non-DFrame Environment';
+        
+        $phpversion = PHP_VERSION;
+        
         $color = self::$colors[$type] ?? self::$colors['error'];
         $reset = self::$colors['reset'];
         $bold = self::$colors['bold'];
 
+        echo "$color{$bold}DFrame Report$reset" . PHP_EOL;
+        echo "$color Version: $reset$dfversion" . PHP_EOL;
+        echo "$color PHP Version: $reset$phpversion" . PHP_EOL;
         echo PHP_EOL;
         echo "DFrame Report detected a bug!" . PHP_EOL;
         echo "$color{$bold}===== $type =====$reset" . PHP_EOL;

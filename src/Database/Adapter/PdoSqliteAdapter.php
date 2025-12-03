@@ -62,7 +62,7 @@ class PdoSqliteAdapter implements AdapterInterface
 
 	public function getError()
 	{
-		return $this->pdo ? $this->pdo->errorInfo() : null;
+		return $this->pdo?->errorInfo();
 	}
 
 	public function lastInsertId()

@@ -3,6 +3,9 @@ namespace DFrame\Database\QueryBuilder;
 
 use DFrame\Database\Interfaces\BuilderInterface;
 
+use function \array_keys;
+use function \is_object;
+
 class SqliteBuilder extends BaseBuilder implements BuilderInterface {
     public function toSql(): string {
         $op = $this->operation ?: 'select';
