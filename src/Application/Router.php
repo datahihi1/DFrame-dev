@@ -381,15 +381,13 @@ class Router
         if ($allowed) {
             http_response_code(405);
             header('Allow: ' . implode(', ', $allowed));
-            echo "Method Not Allowed";
-            return;
+            throw new Exception("Method Not Allowed. Allowed: " . implode(', ', $allowed));
         }
 
         // 5. 400 – missing required param
         if ($bad = $this->detectMissingParam($method, $uri)) {
             http_response_code(400);
-            echo "Bad Request: missing parameter for $bad";
-            return;
+            throw new Exception("Bad Request: missing parameter for $bad");
         }
 
         // 6. default handler
@@ -688,5 +686,22 @@ class Router
         $url = preg_replace('#(?<!:)//+#', '/', $url);
 
         return $url;
+    }
+
+    /**
+     * Trả về routes đã đăng ký (dùng cho sitemap / debug).
+     * Gồm static routes, api routes và tên route.
+     *
+     * NOTE: chỉ đọc, không thay đổi trạng thái của Router.
+     *
+     * @return array{static:array, api:array, names:array}
+     */
+    public static function getRegisteredRoutes(): array
+    {
+        return [
+            'static' => self::$staticRoutes,
+            'api'    => self::$staticApiRoutes,
+            'names'  => self::$routeNames,
+        ];
     }
 }

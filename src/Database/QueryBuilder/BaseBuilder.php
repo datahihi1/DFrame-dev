@@ -15,6 +15,9 @@ abstract class BaseBuilder implements BuilderInterface {
     protected $operation = null; // select|insert|update|delete
     protected $pendingData = [];
 
+    // cache for has deleted_at
+    protected ?bool $tableHasDeletedAtCache = null;
+
     public function __construct($adapter, string $table)
     {
         $this->adapter = $adapter;
@@ -98,6 +101,48 @@ abstract class BaseBuilder implements BuilderInterface {
         return $this;
     }
 
+    /**
+     * Check whether current table has deleted_at column.
+     */
+    protected function tableHasDeletedAt(): bool
+    {
+        if ($this->tableHasDeletedAtCache !== null) {
+            return $this->tableHasDeletedAtCache;
+        }
+        try {
+            $adapterClass = get_class($this->adapter);
+            if (stripos($adapterClass, 'sqlite') !== false) {
+                $sql = "PRAGMA table_info(\"{$this->table}\")";
+                $res = $this->adapter->query($sql);
+                $rows = $this->adapter->fetchAll($res);
+                foreach ($rows as $r) {
+                    $name = $r['name'] ?? $r['Name'] ?? $r['field'] ?? $r['Field'] ?? null;
+                    if ($name === 'deleted_at') {
+                        $this->tableHasDeletedAtCache = true;
+                        return true;
+                    }
+                }
+            } else {
+                $sql = "SHOW COLUMNS FROM `{$this->table}` LIKE 'deleted_at'";
+                $res = $this->adapter->query($sql);
+                $rows = $this->adapter->fetchAll($res);
+                if (!empty($rows)) {
+                    $this->tableHasDeletedAtCache = true;
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->tableHasDeletedAtCache = false;
+            return false;
+        }
+
+        $this->tableHasDeletedAtCache = false;
+        return false;
+    }
+
+    /**
+     * Helper to get current where bindings
+     */
     public function getBindings(): array {
         return $this->bindings;
     }

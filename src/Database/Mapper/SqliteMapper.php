@@ -46,6 +46,11 @@ class SqliteMapper extends BaseMapper {
     }
 
     public function delete($id) {
+        if ($this->hasDeletedAt()) {
+            $sql = "UPDATE \"{$this->table}\" SET \"deleted_at\" = ? WHERE id = ?";
+            $now = date('Y-m-d H:i:s');
+            return $this->adapter->query($sql, [$now, $id]);
+        }
         $sql = "DELETE FROM \"{$this->table}\" WHERE id = ?";
         return $this->adapter->query($sql, [$id]);
     }
@@ -67,5 +72,15 @@ class SqliteMapper extends BaseMapper {
         }
         $id = $data['id'];
         return $this->delete($id);
+    }
+    public function softDelete($id) {
+        $sql = "UPDATE \"{$this->table}\" SET \"deleted_at\" = ? WHERE id = ?";
+        $now = date('Y-m-d H:i:s');
+        return $this->adapter->query($sql, [$now, $id]);
+    }
+
+    public function restore($id) {
+        $sql = "UPDATE \"{$this->table}\" SET \"deleted_at\" = NULL WHERE id = ?";
+        return $this->adapter->query($sql, [$id]);
     }
 }

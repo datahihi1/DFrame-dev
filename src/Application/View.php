@@ -94,7 +94,7 @@ class View
             }
 
             if (!$filePath) {
-                throw new Exception("View file not found: " . $this->viewPath . '/' . $view . '.[php/blade.php/twig/tpl/html/htm]');
+                throw new Exception("View file not found: " . $this->viewPath . '/' . $view . '.[php/html/htm]');
             }
 
             extract($data);

@@ -5,11 +5,9 @@ namespace DFrame\Application;
 use DFrame\Application\View;
 
 /**
- * #### Simple SMTP Gmail Mailer
+ * #### Simple SMTP Gmail Mailer (v0.1.20251204-mini+dev)
  *
- * Mail class to send emails using SMTP protocol.
- *
- * **Note**: Only supports SMTP Gmail with STARTTLS.
+ * Secure Mail class supporting Gmail SMTP, CC, BCC, and Attachments.
  */
 class Mail
 {
@@ -19,107 +17,108 @@ class Mail
     private $password;
     private $from;
     private $from_name;
+
     private $to = [];
+    private $cc = [];
+    private $bcc = [];
+    
     private $subject;
     private $body;
+    private $attachments = [];
 
     /**
-     * Mail configuration can be provided via environment variables or passed as an associative array.
+     * Constructor to initialize SMTP settings
      * 
-     * Only supports SMTP Gmail.
-     * 
-     * **Example:**
-     * ```php
-     * $mail = new \DFrame\Application\Mail();
-     * $mail->to('recipient@example.com')
-     *      ->subject('Test Email')
-     *      ->body('This is a test email.');
-     *      ->send();
-     * ```
-     *
-     * @param mixed|null $config Configuration array with keys: username, password, fromname
+     * @param array|null $config Optional configuration array with keys:
+     *                           - host: SMTP server host
+     *                           - port: SMTP server port
+     *                           - username: SMTP username
+     *                           - password: SMTP password
+     *                           - from: From email address
+     *                           - fromname: From name
      */
     public function __construct(?array $config = null)
     {
-        $this->username   = env('MAIL_USERNAME') ?? $config['username'];
-        $this->password   = env('MAIL_PASSWORD') ?? $config['password'];
-        $this->from       = env('MAIL_USERNAME') ?? $config['username'];
-        $this->from_name  = env('MAIL_FROMNAME') ?? "No-Reply" ?? $config['fromname'];
+        $this->username   = env('MAIL_USERNAME') ?? $config['username'] ?? '';
+        $this->password   = env('MAIL_PASSWORD') ?? $config['password'] ?? '';
+        $this->from       = env('MAIL_FROM_ADDRESS') ?? $config['from'] ?? $this->username;
+        $this->from_name  = env('MAIL_FROM_NAME') ?? $config['fromname'] ?? "No-Reply";
+
+        if (isset($config['host'])) $this->smtp_host = $config['host'];
+        if (isset($config['port'])) $this->smtp_port = $config['port'];
     }
 
     /**
-     * Send a line to the SMTP server.
-     * @param mixed $fp
-     * @param string $line
-     * @return void
+     * Sanitize input to prevent Header Injection
      */
+    private function sanitize(string $string): string
+    {
+        return str_replace(["\r", "\n"], "", trim($string));
+    }
+
+    // --- Networking Helpers ---
+
     private function sendLine($fp, string $line): void
     {
         fwrite($fp, $line . "\r\n");
     }
 
-    /**
-     * Get a line from the SMTP server.
-     * @param mixed $fp
-     * @throws \RuntimeException
-     * @return bool|string
-     */
     private function getLine($fp): string
     {
         $line = fgets($fp, 515);
-        if ($line === false) {
-            throw new \RuntimeException("SMTP read failed");
-        }
+        if ($line === false) throw new \RuntimeException("SMTP read failed");
         return $line;
     }
 
-    /**
-     * Read multiline response from the SMTP server.
-     * @param mixed $fp
-     * @return void
-     */
     private function getMultiline($fp): void
     {
         while (($line = fgets($fp, 515)) !== false) {
-            if (substr($line, 3, 1) !== '-') {
-                break;
-            }
+            if (substr($line, 3, 1) !== '-') break;
         }
     }
 
+    // --- Recipient Methods ---
+
     /**
-     * Add a recipient email address.
-     *
-     * @param string $email Recipient email address
-     * @return self
+     * Add a recipient email address
      */
     public function to(string $email): self
     {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException("Invalid recipient email: $email");
-        }
-        $this->to[] = $email;
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) $this->to[] = $email;
         return $this;
     }
 
     /**
-     * Set the email subject.
-     *
-     * @param string $subject Email subject
-     * @return self
+     * Add a CC email address
+     */
+    public function cc(string $email): self
+    {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) $this->cc[] = $email;
+        return $this;
+    }
+
+    /**
+     * Add a BCC email address
+     */
+    public function bcc(string $email): self
+    {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) $this->bcc[] = $email;
+        return $this;
+    }
+
+    // --- Content Methods ---
+
+    /**
+     * Set the email subject
      */
     public function subject(string $subject): self
     {
-        $subject = str_replace(["\r", "\n"], '', $subject);
-        $this->subject = $subject;
+        $this->subject = $this->sanitize($subject);
         return $this;
     }
 
     /**
-     * Set the email body (HTML content).
-     *
-     * @param string $body Email body in HTML
-     * @return self
+     * Set the email body (HTML)
      */
     public function body(string $body): self
     {
@@ -128,170 +127,176 @@ class Mail
     }
 
     /**
-     * Send the email via SMTP.
-     *
+     * Add an attachment file path
+     */
+    public function addAttachment(string $filePath): self
+    {
+        if (file_exists($filePath)) {
+            $this->attachments[] = $filePath;
+        }
+        return $this;
+    }
+
+    /**
+     * Set the email body as HTML
+     */
+    public function html(string $html): self
+    {
+        $this->body = $html;
+        return $this;
+    }
+
+    /**
+     * Set the email body as plain text (converted to HTML)
+     */
+    public function text(string $text): self
+    {
+        $this->body = nl2br(htmlspecialchars($text));
+        return $this;
+    }
+
+    /**
+     * Set the email body from a view template
+     */
+    public function view(string $viewName, ?array $data = null): self
+    {
+        $view = new View();
+        $this->body = $view->render($viewName, $data);
+        return $this;
+    }
+
+    // --- Main Logic ---
+
+    /**
+     * Send the email via SMTP
+     * 
      * @return bool True on success
      * @throws \RuntimeException on failure
      */
     public function send(): bool
     {
-        // Basic config checks
-        if (empty($this->username) || empty($this->password) || empty($this->from)) {
-            throw new \RuntimeException("SMTP credentials or from address not configured.");
+        if (empty($this->username) || empty($this->password)) {
+            throw new \RuntimeException("SMTP credentials not configured.");
         }
+
+        // 1. Setup Secure Context (Anti-MITM)
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer'       => true,
+                'verify_peer_name'  => true,
+                'allow_self_signed' => false
+            ]
+        ]);
 
         $errno = $errstr = null;
-        $useImplicitSsl = false;
-
-        $cacertPath = ROOT_DIR . '/cacert.pem';
-        $sslOptions = [
-            'verify_peer'       => true,
-            'verify_peer_name'  => true,
-            'allow_self_signed' => false,
-        ];
-
-        if (file_exists($cacertPath)) {
-            $sslOptions['cafile'] = $cacertPath;
-        } else {
-            trigger_error(
-                "Warning: CA certificate file (cacert.pem) not found. "
-                . "SSL certificate verification will use system defaults. "
-                . "This is NOT recommended for production. "
-                . "Download cacert.pem from https://curl.se/ca/cacert.pem for best security.",
-                E_USER_WARNING
-            );
-        }
-
-        $context = stream_context_create(['ssl' => $sslOptions]);
-        // Prefer plain TCP + STARTTLS on configured port (usually 587)
         $fp = @stream_socket_client(
-            "tcp://{$this->smtp_host}:{$this->smtp_port}",
-            $errno,
-            $errstr,
-            30,
-            STREAM_CLIENT_CONNECT,
-            $context
+            "tcp://{$this->smtp_host}:{$this->smtp_port}", 
+            $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $context
         );
-        // Fallback: try implicit SSL (port 465)
-        if (!$fp) {
-            $fp = @stream_socket_client("ssl://{$this->smtp_host}:465", $errno, $errstr, 30);
-            if ($fp) {
-                $useImplicitSsl = true;
-            }
-        }
 
         if (!$fp) {
-            throw new \RuntimeException("SMTP connect failed: $errstr ($errno). Ensure network access to the SMTP host and that OpenSSL is enabled for the PHP SAPI used by your webserver.");
+            // Log error securely instead of showing to user
+            error_log("SMTP Connect Error: $errstr ($errno)");
+            throw new \RuntimeException("Could not connect to Mail Server.");
         }
 
-        // Greet server
+        // 2. Handshake & Auth
         $this->getLine($fp);
-        $this->sendLine($fp, "EHLO localhost");
+        $this->sendLine($fp, "EHLO " . gethostname());
         $this->getMultiline($fp);
 
-        // If we connected implicitly with SSL we skip STARTTLS.
-        if (!$useImplicitSsl) {
-            // STARTTLS
-            $this->sendLine($fp, "STARTTLS");
-            $this->getLine($fp);
-
-            if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                throw new \RuntimeException("Failed to enable TLS (ensure php_openssl is enabled)");
-            }
-
-            // Re-EHLO after TLS
-            $this->sendLine($fp, "EHLO localhost");
-            $this->getMultiline($fp);
+        // STARTTLS
+        $this->sendLine($fp, "STARTTLS");
+        $this->getLine($fp);
+        if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+             throw new \RuntimeException("TLS Negotiation Failed");
         }
+        
+        $this->sendLine($fp, "EHLO " . gethostname());
+        $this->getMultiline($fp);
 
-        // AUTH LOGIN
+        // AUTH
         $this->sendLine($fp, "AUTH LOGIN");
-        $response = $this->getLine($fp);
-
+        $this->getLine($fp);
         $this->sendLine($fp, base64_encode($this->username));
-        $response = $this->getLine($fp);
-
+        $this->getLine($fp);
         $this->sendLine($fp, base64_encode($this->password));
-        $response = $this->getLine($fp);
-
-        // Check for authentication failure
-        if (strpos($response, '535') === 0) {
-            throw new \RuntimeException("SMTP Authentication failed: Wrong username or application password.");
+        $resp = $this->getLine($fp);
+        
+        if (strpos($resp, '235') === false) {
+             throw new \RuntimeException("SMTP Auth Failed. Check App Password.");
         }
 
+        // 3. Send Recipients (To + CC + BCC)
         // MAIL FROM
         $this->sendLine($fp, "MAIL FROM:<{$this->from}>");
-        $response = $this->getLine($fp);
+        $this->getLine($fp);
 
-        if (strpos($response, '550') === 0) {
-            throw new \RuntimeException("Sender email address is invalid or does not exist: {$this->from}");
-        }
+        // RCPT TO (Send to everyone, but BCC is hidden in header later)
+        $allRecipients = array_merge($this->to, $this->cc, $this->bcc);
+        if (empty($allRecipients)) throw new \RuntimeException("No recipients specified.");
 
-        // RCPT TO
-        foreach ($this->to as $rcpt) {
+        foreach ($allRecipients as $rcpt) {
             $this->sendLine($fp, "RCPT TO:<$rcpt>");
-            $response = $this->getLine($fp);
-
-            if (strpos($response, '550') === 0) {
-                throw new \RuntimeException("Recipient email address is invalid or does not exist: $rcpt");
-            }
+            $this->getLine($fp);
         }
 
-        // DATA
+        // 4. Build Payload (Data)
         $this->sendLine($fp, "DATA");
         $this->getLine($fp);
 
-        // Email headers and body
-        $headers  = "From: {$this->from_name} <{$this->from}>\r\n";
-        $headers .= "To: " . implode(",", $this->to) . "\r\n";
+        // Generate a unique boundary for multipart
+        $boundary = "dframe_" . md5(uniqid(time()));
+
+        // --- Headers ---
+        $headers  = "MIME-Version: 1.0\r\n";
+        $headers .= "Date: " . date("r") . "\r\n";
+        $headers .= "From: " . $this->sanitize($this->from_name) . " <{$this->from}>\r\n";
         $headers .= "Subject: {$this->subject}\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
+        
+        // Visible Recipients in Header
+        if (!empty($this->to)) $headers .= "To: " . implode(", ", $this->to) . "\r\n";
+        if (!empty($this->cc)) $headers .= "Cc: " . implode(", ", $this->cc) . "\r\n";
+        // BCC header is intentionally OMITTED for privacy
 
-        $message = $headers . $this->body . "\r\n.\r\n";
+        // Content-Type for Mixed (Body + Attachments)
+        $headers .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n";
+        $headers .= "\r\n"; // End of main headers
 
+        fwrite($fp, $headers);
+
+        // --- Body Part ---
+        $message  = "--{$boundary}\r\n";
+        $message .= "Content-Type: text/html; charset=\"UTF-8\"\r\n";
+        $message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+        $message .= $this->body . "\r\n\r\n";
         fwrite($fp, $message);
+
+        // --- Attachment Parts ---
+        foreach ($this->attachments as $filePath) {
+            if (file_exists($filePath)) {
+                $fileName = basename($filePath);
+                $fileData = chunk_split(base64_encode(file_get_contents($filePath)));
+
+                $att  = "--{$boundary}\r\n";
+                $att .= "Content-Type: application/octet-stream; name=\"{$fileName}\"\r\n";
+                $att .= "Content-Disposition: attachment; filename=\"{$fileName}\"\r\n";
+                $att .= "Content-Transfer-Encoding: base64\r\n\r\n";
+                $att .= $fileData . "\r\n\r\n";
+                
+                fwrite($fp, $att);
+            }
+        }
+
+        // End of Data
+        fwrite($fp, "--{$boundary}--\r\n");
+        fwrite($fp, ".\r\n"); // End signal
         $this->getLine($fp);
 
+        // Quit
         $this->sendLine($fp, "QUIT");
         fclose($fp);
 
         return true;
-    }
-
-    /**
-     * Quick send method for one-off emails.
-     *
-     * @param string $to Recipient email address
-     * @param string $subject Email subject
-     * @param string $body Email body in HTML
-     * @return bool True on success
-     * @throws \InvalidArgumentException if email is invalid
-     */
-    public static function fast(string $to, string $subject, string $body): bool
-    {
-        $mail = new self();
-
-        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException("Invalid recipient email: $to");
-        }
-
-        return $mail->to($to)
-            ->subject($subject)
-            ->body($body)
-            ->send();
-    }
-
-    /**
-     * Render a view as the email body.
-     *
-     * @param string $view View file path
-     * @param array $data Data to pass to the view
-     * @return self
-     */
-    public function view(string $view, array $data = [])
-    {
-        $content = View::render($view, $data);
-        return $this->body($content);
     }
 }

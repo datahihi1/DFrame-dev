@@ -85,6 +85,19 @@ class MysqlBuilder extends BaseBuilder implements BuilderInterface {
             return 0;
         }
         if ($op === 'delete') {
+            // If table supports soft delete, convert DELETE -> UPDATE deleted_at
+            if ($this->tableHasDeletedAt()) {
+                $sql = $this->toSql();
+                // replace leading DELETE FROM ... with UPDATE `table` SET `deleted_at` = ?
+                $sql = preg_replace('/^\s*DELETE\s+FROM\s+[`"]?[^`"]+[`"]?/', "UPDATE `{$this->table}` SET `deleted_at` = ?", $sql);
+                $bindings = array_merge([date('Y-m-d H:i:s')], $this->getBindings());
+                $result = $this->adapter->query($sql, $bindings);
+                if (is_object($result) && method_exists($result, 'rowCount')) {
+                    return (int) $result->rowCount();
+                }
+                return 0;
+            }
+
             $sql = $this->toSql();
             $bindings = $this->getBindings();
             $result = $this->adapter->query($sql, $bindings);
@@ -94,5 +107,23 @@ class MysqlBuilder extends BaseBuilder implements BuilderInterface {
             return 0;
         }
         return null;
+    }
+    public function softDelete($id): int {
+        $sql = "UPDATE `{$this->table}` SET `deleted_at` = ? WHERE id = ?";
+        $now = date('Y-m-d H:i:s');
+        $result = $this->adapter->query($sql, [$now, $id]);
+        if (is_object($result) && method_exists($result, 'rowCount')) {
+            return (int) $result->rowCount();
+        }
+        return 0;
+    }
+
+    public function restore($id): int {
+        $sql = "UPDATE `{$this->table}` SET `deleted_at` = NULL WHERE id = ?";
+        $result = $this->adapter->query($sql, [$id]);
+        if (is_object($result) && method_exists($result, 'rowCount')) {
+            return (int) $result->rowCount();
+        }
+        return 0;
     }
 }

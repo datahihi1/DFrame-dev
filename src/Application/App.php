@@ -21,7 +21,7 @@ class App
      * Version of DFrame Framework (Mini edition).
      * @var string
      */
-    public const VERSION = '0.1.20251203-mini+dev';
+    public const VERSION = '0.1.20251204-mini+dev';
     /**
      * Alias for version constant
      */
@@ -377,6 +377,12 @@ class App
 
             // Validate required environment variables for services
             self::validateServiceConfig();
+
+            // Perform health check (optional, can log or act on results)
+            $healthStatus = self::healthCheck();
+            if ($healthStatus['status'] === 'unhealthy') {
+                throw new Exception('Application health check failed.');
+            }
         } catch (Exception $e) {
             if (self::isDebug()) {
                 throw $e;

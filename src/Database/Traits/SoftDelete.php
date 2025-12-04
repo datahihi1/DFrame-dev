@@ -10,6 +10,54 @@ namespace DFrame\Database\Traits;
  */
 trait SoftDelete
 {
+    protected function checkDeletedAtColumn()
+    {
+        // Lấy adapter và tên bảng từ $this
+        $adapter = $this->adapter ?? ($this->db ?? null);
+        $table = $this->table ?? null;
+        if (!$adapter || !$table) {
+            throw new \RuntimeException("SoftDelete: Adapter or table not set in model.");
+        }
+
+        $adapterClass = get_class($adapter);
+        if (stripos($adapterClass, 'sqlite') !== false) {
+            $sql = "PRAGMA table_info(\"{$table}\")";
+            $res = $adapter->query($sql);
+            $rows = $adapter->fetchAll($res);
+            foreach ($rows as $r) {
+                $name = $r['name'] ?? $r['Name'] ?? null;
+                $type = strtolower($r['type'] ?? '');
+                $nullable = !($r['notnull'] ?? 1);
+                if ($name === 'deleted_at') {
+                    if (strpos($type, 'date') === false && strpos($type, 'time') === false) {
+                        throw new \RuntimeException("SoftDelete: 'deleted_at' column must be DATETIME or TIMESTAMP, got '$type'");
+                    }
+                    if (!$nullable) {
+                        throw new \RuntimeException("SoftDelete: 'deleted_at' column must be nullable.");
+                    }
+                    return true;
+                }
+            }
+        } else {
+            $sql = "SHOW COLUMNS FROM `{$table}` LIKE 'deleted_at'";
+            $res = $adapter->query($sql);
+            $rows = $adapter->fetchAll($res);
+            if (!empty($rows)) {
+                $row = $rows[0];
+                $type = strtolower($row['Type'] ?? '');
+                $nullable = strtolower($row['Null'] ?? '') === 'yes';
+                if (strpos($type, 'date') === false && strpos($type, 'time') === false) {
+                    throw new \RuntimeException("SoftDelete: 'deleted_at' column must be DATETIME or TIMESTAMP, got '$type'");
+                }
+                if (!$nullable) {
+                    throw new \RuntimeException("SoftDelete: 'deleted_at' column must be nullable.");
+                }
+                return true;
+            }
+        }
+        throw new \RuntimeException("SoftDelete: 'deleted_at' column not found in table '{$table}'.");
+    }
+
     /**
      * The timestamp when the object was soft deleted
      *
@@ -17,6 +65,7 @@ trait SoftDelete
      */
     public function softDelete()
     {
+        $this->checkDeletedAtColumn();
         if ($this->isDeleted()) {
             return false;
         }
@@ -30,6 +79,7 @@ trait SoftDelete
      */
     public function restore($id = null)
     {
+        $this->checkDeletedAtColumn();
         if (!$this->isDeleted()) {
             return false;
         }

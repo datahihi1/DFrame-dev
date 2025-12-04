@@ -29,6 +29,7 @@ $router->group('/api')->action(function($router) { // Grouped routes
     $router->sign('GET /users', [App\Controller\Api\UserController::class, 'list']);
 });
 $router->sign('GET|POST /demo', [App\Controller\DemoController::class, 'index']); // Multiple methods
+$router->signApi('GET /data', [App\Controller\Api\DataController::class, 'fetch']); // API route
 $router->runInstance();
 ```
 
@@ -70,7 +71,8 @@ $isValid = DFrame\Application\Hash::verify('password123', $hashedPassword); // V
 
 **Mail:**
 ```php
-DFrame\Application\Mail::to('recipient@example.com')
+$mail = new DFrame\Application\Mail();
+$mail->to('recipient@example.com')
     ->subject('Test Email')
     ->body('This is a test email.')
     ->send();
