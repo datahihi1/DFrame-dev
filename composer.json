@@ -8,11 +8,9 @@
         "ext-openssl": "*",
         "ext-pdo": "*",
         "ext-mbstring": "*",
-        "ext-json": "*",
-        "ext-xml": "*",
-        "eftec/bladeone": "^4.19",
-        "twig/twig": "*",
-        "datahihi1/tiny-env": "^1.0"
+        "eftec/bladeone": "^4",
+        "twig/twig": "^3",
+        "datahihi1/tiny-env": "^1"
     },
     "autoload": {
         "psr-4": {

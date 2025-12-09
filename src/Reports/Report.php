@@ -5,6 +5,9 @@ use DFrame\Reports\Handler;
 use DFrame\Reports\Render\Html;
 use DFrame\Reports\Render\Cli;
 
+/**
+ * Report - Global error and exception handling class
+ */
 final class Report
 {
     private static ?Handler $handler = null;

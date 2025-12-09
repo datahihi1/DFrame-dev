@@ -33,7 +33,7 @@ class Core
     public static function version()
     {
         return function () {
-            echo "Version: " . cli_green(\DFrame\Application\App::VERSION ?? "unknown") . "\n";
+            echo "Version: " . cli_green(App::VERSION ?? "unknown") . "\n";
         };
     }
 

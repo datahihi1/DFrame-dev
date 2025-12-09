@@ -79,6 +79,16 @@ $mail->to('recipient@example.com')
 ```
 
 ## System Requirements
-- PHP 8.0 to 8.5 (Update at 22:16 2025-12-08 UTC+7)
+- PHP 8.0 to 8.5 (Update at 20:00 2025-12-09 UTC+7)
 - Composer
 - Web Server (Apache, Nginx, etc.)
+
+## Installation
+
+```bash
+composer create-project datahihi1/dframe:dev-main my-project
+cd my-project
+php dli -s
+```
+
+Then open your browser and navigate to `http://localhost:8000`.

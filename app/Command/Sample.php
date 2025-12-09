@@ -2,10 +2,17 @@
 
 namespace App\Command;
 
+use DFrame\Command\Helper\ConsoleInput;
+
 class Sample
 {
     public static function handle(): void
     {
-        echo "Sample custom logic.\n";
+        $isOk = ConsoleInput::askYesNo("Continue ?");
+        if ($isOk) {
+            echo "You chose to continue.\n";
+        } else {
+            echo "Cancelled.\n";
+        }
     }
 }

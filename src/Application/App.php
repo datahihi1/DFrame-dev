@@ -19,10 +19,10 @@ use Exception;
 class App
 {
     /**
-     * Version of DFrame Framework (Mini edition).
+     * Version of DFrame Framework.
      * @var string
      */
-    public const VERSION = '0.1.20251208-dev';
+    public const VERSION = '0.1.20251209-dev';
     /**
      * Alias for version constant
      */

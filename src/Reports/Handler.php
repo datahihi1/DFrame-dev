@@ -10,6 +10,13 @@ class Handler extends HandlerInterface
     private string $logFile;
     private RenderInterface $renderer;
 
+    /**
+     * Resignter a new error and exception handler
+     * 
+     * @param bool $saveLog Whether to save logs to a file
+     * @param string $logFile The log file path
+     * @param mixed $renderer The renderer instance to use
+     */
     public function __construct(bool $saveLog = false, string $logFile = 'errors.log', ?RenderInterface $renderer = null)
     {
         $this->saveLog = $saveLog;
